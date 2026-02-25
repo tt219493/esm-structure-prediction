@@ -61,3 +61,7 @@ Notebook Summary
 In `ESM.ipynb`, exploratory data analysis and combining the information from `train.tsv` and `sequences.fasta` into a Pandas DataFrame were done. Then, using that DataFrame, the pre-trained ESM model from HuggingFace was loaded and fine-tuned. Additionally, different window lengths of the sequences were also tested. Predictions on the test set after fine-tuning resulted in about 60% accuracy.
 
 In `GradBoost.ipynb`, the embeddings from the last layer of the fine-tuned ESM model were used as inputs to various gradient boosting models, such as CatBoost (not shown in notebook) and XGBoost. Using these embeddings resulted in a slight increase in accuracy to about 65%.
+
+References
+---
+> Rives, A., Meier, J., Sercu, T., Goyal, S., Lin, Z., Liu, J., Guo, D., Ott, M., Zitnick, C. L., Ma, J., & Fergus, R. (2020). Biological Structure and Function Emerge from Scaling Unsupervised Learning to 250 Million Protein Sequences. bioRxiv. https://doi.org/10.1101/622803
