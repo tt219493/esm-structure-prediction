@@ -148,19 +148,23 @@ class EsmForSecondaryStructure(L.LightningModule):
 
 
   def configure_optimizers(self):
-      optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+    optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
 
-      warmup_scheduler = optim.lr_scheduler.LinearLR(optimizer,
-                                              start_factor = 0.01,
-                                              end_factor = 1.0,
-                                              total_iters=self.warmup_epochs)
-      decay_scheduler = optim.lr_scheduler.LinearLR(optimizer,
-                                              start_factor = 1.0,
-                                              end_factor = 0.0,
-                                              total_iters=self.decay_epochs)
-      
-      scheduler = optim.lr_scheduler.SequentialLR(optimizer,
-                                                  schedulers = [warmup_scheduler, decay_scheduler],
-                                                  milestones = [self.warmup_epochs])
+    decay_scheduler = optim.lr_scheduler.LinearLR(optimizer,
+                                        start_factor = 1.0,
+                                        end_factor = 0.0,
+                                        total_iters=self.decay_epochs)
+
+    if self.warmup_epochs > 0:
+        warmup_scheduler = optim.lr_scheduler.LinearLR(optimizer,
+                                                start_factor = 0.01,
+                                                end_factor = 1.0,
+                                                total_iters=self.warmup_epochs)
+
+        scheduler = optim.lr_scheduler.SequentialLR(optimizer,
+                                                    schedulers = [warmup_scheduler, decay_scheduler],
+                                                    milestones = [self.warmup_epochs])
+    else:
+      scheduler = decay_scheduler
 
       return [optimizer], [scheduler]
