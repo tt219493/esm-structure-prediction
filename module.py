@@ -85,7 +85,6 @@ class EsmForSecondaryStructure(L.LightningModule):
           labels=batch[self.label_key],
       )
 
-    self.log("train_loss", outputs[self.loss_key], on_step=False, on_epoch=True, prog_bar=True)
 
     logits = outputs[self.output_key]
     predictions = torch.argmax(logits, 2)
@@ -93,9 +92,11 @@ class EsmForSecondaryStructure(L.LightningModule):
 
     acc = self.compute_accuracy(predictions, labels)
     if acc:
+      self.log("train_loss", outputs[self.loss_key], on_step=False, on_epoch=True, prog_bar=True)
       self.log("train_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
-
-    return outputs[self.loss_key]
+      return outputs[self.loss_key]
+    else:
+      return torch.tensor(0.0)
 
 
   def validation_step(self, batch, batch_idx):
@@ -104,8 +105,6 @@ class EsmForSecondaryStructure(L.LightningModule):
         attention_mask=batch[self.mask_key],
         labels=batch[self.label_key],
     )
-
-    self.log("val_loss", outputs[self.loss_key], on_step=False, on_epoch=True, prog_bar=True)
     
     logits = outputs[self.output_key]
     predictions = torch.argmax(logits, 2)
@@ -113,6 +112,7 @@ class EsmForSecondaryStructure(L.LightningModule):
 
     acc = self.compute_accuracy(predictions, labels)
     if acc:
+      self.log("val_loss", outputs[self.loss_key], on_step=False, on_epoch=True, prog_bar=True)
       self.log("val_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
 
   def test_step(self, batch, batch_idx):
@@ -122,14 +122,13 @@ class EsmForSecondaryStructure(L.LightningModule):
         labels=batch[self.label_key],
     )
 
-    self.log("test_loss", outputs[self.loss_key], on_step=False, on_epoch=True, prog_bar=True)
-
     logits = outputs[self.output_key]
     predictions = torch.argmax(logits, 2)
     labels = batch[self.label_key]
 
     acc = self.compute_accuracy(predictions, labels)
     if acc:
+      self.log("test_loss", outputs[self.loss_key], on_step=False, on_epoch=True, prog_bar=True)
       self.log("test_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
 
   def predict_step(self, batch, batch_idx):
