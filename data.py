@@ -25,7 +25,7 @@ class EsmDataModule(L.LightningDataModule):
             self.test_ds = self.test_ds
         
     def train_dataloader(self):
-        return DataLoader(self.train_ds, collate_fn=self.collator, batch_size=self.batch_size,
+        return DataLoader(self.train_ds, collate_fn=self.collator, batch_size=self.batch_size, shuffle=True,
                             num_workers = 2)
 
     def val_dataloader(self):

@@ -45,6 +45,27 @@ class EsmForSecondaryStructure(L.LightningModule):
     self.output_key = output_key
     self.loss_key = loss_key
 
+  def compute_accuracy(self, predictions, labels):
+    true_predictions = []
+    true_labels = []
+
+    for prediction, label in zip(predictions, labels):
+        true_predictions = true_predictions + [
+            p for (p, l) in zip(prediction, label) if l != -100
+        ]
+        true_labels = true_labels + [
+            l for l in label if l != -100
+        ]
+    
+    acc = self.accuracy(
+        torch.tensor(true_predictions),
+        torch.tensor(true_labels),
+        num_classes=self.num_labels,
+        task="multiclass", 
+    )
+
+    return acc
+
   def forward(self, batch):
     outputs = self.model(
         batch[self.input_key],
@@ -66,24 +87,7 @@ class EsmForSecondaryStructure(L.LightningModule):
     predictions = torch.argmax(logits, 2)
     labels = batch[self.label_key]
 
-    true_predictions = []
-    true_labels = []
-
-    for prediction, label in zip(predictions, labels):
-        true_predictions = true_predictions + [
-            p for (p, l) in zip(prediction, label) if l != -100
-        ]
-        true_labels = true_labels + [
-            l for l in label if l != -100
-        ]
-
-
-    acc = self.accuracy(
-        torch.tensor(true_predictions),
-        torch.tensor(true_labels),
-        num_classes=self.num_labels,
-        task="multiclass",
-    )
+    acc = self.compute_accuracy(predictions, labels)
 
     self.log("train_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
 
@@ -103,24 +107,7 @@ class EsmForSecondaryStructure(L.LightningModule):
     predictions = torch.argmax(logits, 2)
     labels = batch[self.label_key]
 
-    true_predictions = []
-    true_labels = []
-
-    for prediction, label in zip(predictions, labels):
-        true_predictions = true_predictions + [
-            p for (p, l) in zip(prediction, label) if l != -100
-        ]
-        true_labels = true_labels + [
-            l for l in label if l != -100
-        ]
-
-
-    acc = self.accuracy(
-        torch.tensor(true_predictions),
-        torch.tensor(true_labels),
-        num_classes=self.num_labels,
-        task="multiclass",
-    )
+    acc = self.compute_accuracy(predictions, labels)
 
     self.log("val_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
 
@@ -138,25 +125,7 @@ class EsmForSecondaryStructure(L.LightningModule):
     predictions = torch.argmax(logits, 2)
     labels = batch[self.label_key]
 
-    true_predictions = []
-    true_labels = []
-
-    for prediction, label in zip(predictions, labels):
-        true_predictions = true_predictions + [
-            p for (p, l) in zip(prediction, label) if l != -100
-        ]
-        true_labels = true_labels + [
-            l for l in label if l != -100
-        ]
-
-
-    acc = self.accuracy(
-        torch.tensor(true_predictions),
-        torch.tensor(true_labels),
-        num_classes=self.num_labels,
-        task="multiclass",
-    )
-
+    acc = self.compute_accuracy(predictions, labels)
     self.log("test_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
 
 
