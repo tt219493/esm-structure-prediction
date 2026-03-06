@@ -15,6 +15,7 @@ class EsmForSecondaryStructure(L.LightningModule):
                decay_epochs: int = 3,
                learning_rate: float = 5e-5,
                weight_decay: float = 0.0,
+               eps: float = 1e-8,
                input_key: str = "input_ids",
                label_key: str = "label",
                mask_key: str = "attention_mask",
@@ -38,6 +39,7 @@ class EsmForSecondaryStructure(L.LightningModule):
     self.decay_epochs = decay_epochs
     self.learning_rate = learning_rate
     self.weight_decay = weight_decay
+    self.eps = eps
 
     self.input_key = input_key
     self.label_key = label_key
@@ -148,7 +150,8 @@ class EsmForSecondaryStructure(L.LightningModule):
 
 
   def configure_optimizers(self):
-    optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+    optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay,
+                            eps=self.eps)
 
     decay_scheduler = optim.lr_scheduler.LinearLR(optimizer,
                                         start_factor = 1.0,
