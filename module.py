@@ -96,7 +96,7 @@ class EsmForSecondaryStructure(L.LightningModule):
       self.log("train_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
       return outputs[self.loss_key]
     else:
-      return torch.tensor(0.0)
+      return torch.tensor(0.0).requires_grad_()
 
 
   def validation_step(self, batch, batch_idx):
