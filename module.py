@@ -131,8 +131,8 @@ class EsmForSecondaryStructure(L.LightningModule):
   def predict_step(self, batch, batch_idx):
     with torch.no_grad():
         outputs = self.model(
-            torch.tensor(batch[self.input_key]).reshape(1, -1),
-            attention_mask=torch.tensor(batch[self.mask_key]).reshape(1, -1),
+            torch.tensor(batch[self.input_key]).reshape(1, -1).to(device),
+            attention_mask=torch.tensor(batch[self.mask_key]).reshape(1, -1).to(device),
         )
         logits = outputs[self.output_key]
         predictions = torch.argmax(logits, 2)
