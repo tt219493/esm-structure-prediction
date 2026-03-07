@@ -50,25 +50,16 @@ class EsmForSecondaryStructure(L.LightningModule):
     self.loss_key = loss_key
 
   def compute_accuracy(self, predictions, labels):
-    true_predictions = []
-    true_labels = []
-
-    for prediction, label in zip(predictions, labels):
-        true_predictions = true_predictions + [
-            p for (p, l) in zip(prediction, label) if l != -100
-        ]
-        true_labels = true_labels + [
-            l for l in label if l != -100
-        ]
-        
-    if len(true_labels) == 0:
+    # if all labels are -100, return acc = None
+    if torch.where((labels == -100), 0, labels).sum() == 0:
       acc = None
     else:
       acc = self.accuracy(
-          torch.tensor(true_predictions),
-          torch.tensor(true_labels),
+          predictions,
+          labels,
           num_classes=self.num_labels,
           task="multiclass", 
+          ignore_index = -100
       )
 
     return acc
@@ -89,6 +80,8 @@ class EsmForSecondaryStructure(L.LightningModule):
     labels = batch[self.label_key]
 
     acc = self.compute_accuracy(predictions, labels)
+    # if all labels are -100, return loss as 0.0
+    # accuracy still works when all labels are -100 but loss returns as NaN 
     if acc:
       self.log("train_loss", outputs[self.loss_key], on_step=False, on_epoch=True, prog_bar=True)
       self.log("train_accuracy", acc, on_step=False, on_epoch=True, prog_bar=True)
