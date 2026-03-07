@@ -131,16 +131,24 @@ class EsmForSecondaryStructure(L.LightningModule):
 
   def predict_step(self, batch, batch_idx):
     outputs = self.predict(batch)
-    logits = outputs[self.output_key]
-    predictions = torch.argmax(logits, 2)
 
-    return predictions
+    return {
+        'input_ids'      : torch.tensor(batch['input_ids']).tolist(),
+        'label'          : torch.tensor(batch['label']).tolist(),
+        'attention_mask' : torch.tensor(batch['attention_mask']).tolist(),
+        'embedding'      : outputs.hidden_states[-1].squeeze(0).tolist()
+          }
+
+
+    # logits = outputs[self.output_key]
+    # predictions = torch.argmax(logits, 2)
+    # return predictions
   
   def get_hidden_states(self, batch):
     hidden_states = self.predict(batch).hidden_states
-    last_layer = hidden_states[-2].squeeze(0).numpy()
-    embeddings = hidden_states[-1].squeeze(0).numpy()
-    return last_layer, embeddings
+    last_layer = hidden_states[-2].squeeze(0) #.numpy()
+    embedding = hidden_states[-1].squeeze(0) #.numpy()
+    return last_layer, embedding
 
 
 #  {
