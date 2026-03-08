@@ -43,7 +43,7 @@ class EsmDataModule(L.LightningDataModule):
                         num_workers = self.num_workers)
 
     def predict_dataloader(self):
-        return DataLoader(self.predict_ds, batch_size=1,
+        return DataLoader(self.predict_ds, collate_fn=self.collator, batch_size=1,
                         num_workers = self.num_workers)
 
 

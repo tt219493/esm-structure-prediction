@@ -130,8 +130,8 @@ class EsmForSecondaryStructure(L.LightningModule):
   def predict(self, batch):
     with torch.no_grad():
       outputs = self.model(
-          torch.tensor(batch[self.input_key]).reshape(1, -1).to(device),
-          attention_mask=torch.tensor(batch[self.mask_key]).reshape(1, -1).to(device),
+          batch[self.input_key],
+          attention_mask=batch[self.mask_key],
       )
       return outputs
 
@@ -139,9 +139,9 @@ class EsmForSecondaryStructure(L.LightningModule):
     outputs = self.predict(batch)
 
     return {
-        'input_ids'      : torch.tensor(batch['input_ids']).tolist(),
-        'label'          : torch.tensor(batch['label']).tolist(),
-        'attention_mask' : torch.tensor(batch['attention_mask']).tolist(),
+        'input_ids'      : batch['input_ids'].tolist(),
+        'label'          : batch['label'].tolist(),
+        'attention_mask' : batch['attention_mask'].tolist(),
         'embedding'      : outputs.hidden_states[-1].squeeze(0).tolist()
           }
 
