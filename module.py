@@ -25,7 +25,8 @@ class EsmForSecondaryStructure(L.LightningModule):
                mask_key: str = "attention_mask",
                output_key: str = "logits",
                loss_key: str = "loss",
-               create_emb_df: bool = False
+               create_emb_df: bool = False,
+               combine_label: bool = False,
                ):
     super().__init__()
     self.model = EsmForTokenClassification.from_pretrained(pretrained,
@@ -71,6 +72,7 @@ class EsmForSecondaryStructure(L.LightningModule):
     self.loss_key = loss_key
 
     self.create_emb_df = create_emb_df
+    self.combine_label = combine_label
 
   def compute_accuracy(self, predictions, labels):
       acc = self.accuracy(
@@ -121,6 +123,12 @@ class EsmForSecondaryStructure(L.LightningModule):
 
     predictions = torch.argmax(logits, 2)
     labels = batch[self.label_key]
+    
+    # C10 model: " " (chain break) = 0, "." (coil or other) = 1
+    # C9/8 model: " "/"." -> "C" = 0
+    if self.combine_label:
+       predictions = torch.where(predictions == 1, 0, predictions)
+       labels = torch.where(labels == 1, 0, labels)
 
     acc = self.compute_accuracy(predictions, labels)
     self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
