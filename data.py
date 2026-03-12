@@ -5,16 +5,25 @@ from transformers import AutoTokenizer, DataCollatorForTokenClassification
 from datasets import Dataset
 
 class EsmDataModule(L.LightningDataModule):
-    def __init__(self, train_df, test_df, val_df = None, predict_df = None, num_workers = 2, batch_size = 16, eval_batch_size = 16, pretrained: str = "facebook/esm2_t6_8M_UR50D"):
+    def __init__(self, 
+                 train_df, 
+                 test_df, 
+                 val_df = None, 
+                 predict_df = None, 
+                 num_workers = 2, 
+                 batch_size = 16, 
+                 eval_batch_size = 16, 
+                 predict_batch_size = 1,
+                 pretrained: str = "facebook/esm2_t6_8M_UR50D"):
         super().__init__()
         self.train_df = train_df
         self.test_df = test_df
         self.val_df = val_df
         self.predict_df = predict_df
-
         self.num_workers = num_workers
         self.batch_size = batch_size
         self.eval_batch_size = eval_batch_size
+        self.predict_batch_size = predict_batch_size
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained)
         self.collator = DataCollatorForTokenClassification(tokenizer=self.tokenizer, padding=True)
     
@@ -51,7 +60,7 @@ class EsmDataModule(L.LightningDataModule):
                         num_workers = self.num_workers)
 
     def predict_dataloader(self):
-        return DataLoader(self.predict_ds, collate_fn=self.collator, batch_size=1,
+        return DataLoader(self.predict_ds, collate_fn=self.collator, batch_size=self.predict_batch_size,
                         num_workers = self.num_workers)
 
 
