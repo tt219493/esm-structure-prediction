@@ -254,18 +254,10 @@ class EsmForSecondaryStructure(L.LightningModule):
             embedding.append(outputs['hidden_states'][-1])
 
         embedding = torch.cat(embedding, axis=1)
-        return {
-        'input_ids' : batch[self.input_key],
-        'label' : batch[self.label_key],
-        'embedding': embedding
-        }
+        return embedding
     else:
         outputs = self.predict(batch)
-        return {
-        'input_ids' : batch[self.input_key],
-        'label' : batch[self.label_key],
-        'embedding' : outputs['hidden_states'][-1]
-        }
+        return outputs['hidden_states'][-1]
 
   def configure_optimizers(self):
     optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay,
