@@ -40,8 +40,8 @@ def plot_training(logger, dimensions = (15, 5)):
     x_axis = logger.history['epoch']
     train_loss = logger.history['train_loss']
     val_loss = logger.history['val_loss']
-    train_acc = logger.history['train_accuracy']
-    val_acc = logger.history['val_accuracy']
+    train_acc = logger.history['train_acc']
+    val_acc = logger.history['val_acc']
 
     plt.figure(figsize=dimensions)
     plt.subplot(1, 2, 1)
