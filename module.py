@@ -168,6 +168,12 @@ class EsmForSecondaryStructure(L.LightningModule):
     predictions = torch.argmax(logits, 2)
     labels = batch[self.label_key]
 
+    # C10 model: " " (chain break) = 0, "." (coil or other) = 1
+    # C9/8 model: " "/"." -> "C" = 0
+    if self.combine_label:
+       predictions = torch.where(predictions == 1, 0, predictions)
+       labels = torch.where(labels == 1, 0, labels)
+
     acc = self.compute_accuracy(predictions, labels)
     self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
     self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=True)
@@ -202,6 +208,12 @@ class EsmForSecondaryStructure(L.LightningModule):
 
     predictions = torch.argmax(logits, 2)
     labels = batch[self.label_key]
+
+    # C10 model: " " (chain break) = 0, "." (coil or other) = 1
+    # C9/8 model: " "/"." -> "C" = 0
+    if self.combine_label:
+       predictions = torch.where(predictions == 1, 0, predictions)
+       labels = torch.where(labels == 1, 0, labels)
 
     acc = self.compute_accuracy(predictions, labels)
     self.log("test_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
@@ -246,7 +258,13 @@ class EsmForSecondaryStructure(L.LightningModule):
                             'attention_mask' : batch['attention_mask'].tolist(),
                             'embedding'      : embedding.tolist()}])
     else:
-      return logits.argmax(2)
+      predictions = logits.argmax(2)
+      # C10 model: " " (chain break) = 0, "." (coil or other) = 1
+      # C9/8 model: " "/"." -> "C" = 0
+      if self.combine_label:
+        predictions = torch.where(predictions == 1, 0, predictions)
+
+      return predictions
 
   def get_embedding(self, batch):
     # use to directly feed embeddings to other models
